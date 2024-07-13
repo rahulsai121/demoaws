@@ -12,11 +12,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.post('/user/submit',(req,res,next)=>{
+app.post('/user/signup',(req,res,next)=>{
     controller.userpost(req,res)
 })
 
-sequelize.sync({force:true})
+app.post('/user/login',(req,res,next)=>{
+    controller.loginpost(req,res)
+})
+
+sequelize.sync()
     .then(() => {
         console.log('Database synced');
         app.listen(3000, () => {

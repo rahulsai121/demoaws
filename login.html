@@ -20,6 +20,8 @@
 
     <a href="">New User-Signup Now</a>
 
+    <div id="maindiv"></div>
+
     <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
 
     <script>
@@ -35,7 +37,17 @@
             email:email,
             password:password
             })
+            .then(res=>Showonscreen(res.data.message))
+            .catch(err=>console.log(err))
             
+        }
+        function Showonscreen(x){
+            console.log(x)
+            const div=document.getElementById('maindiv')
+            const p=document.createElement('p')
+            p.textContent=x;
+
+            div.appendChild(p)
         }
     </script>
 </body>
