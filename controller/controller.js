@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 
 const user=require('../model/user')
+
+const expense=require('../model/expense')
 exports.userpost= async (req, res) => {
     //console.log(req.body)
 
@@ -24,15 +26,34 @@ exports.loginpost=async(req,res)=>{
     if(userdata.length>0){
         
         const match=await bcrypt.compare(req.body.password,userdata[0].password)
-        console.log('match------------',match)
+        
         if(match){
-            res.status(200).json({message:'User login successfull'})
+            res.status(200).json({message:'User login successfull',success:true})
         }
         else{
-            res.status(401).json({message:'User not authorized'})
+            res.status(401).json({message:'User not authorized',success:false})
         }
     }
     else{
-        return res.status(404).json({message:'User not found'})
+        res.status(404).json({message:'User not found',success:false})
     }
+}
+
+exports.expensepost=async(req,res)=>{
+    const newexpence=await expense.create({
+        amount:req.body.amount,
+        des:req.body.des,
+        category:req.body.category
+    })
+
+    res.status(201).json({newexpence})
+}
+
+exports.expensedelete=async(req,res)=>{
+
+    const result=expense.destroy({where:{id:req.params.id}})
+    .then(res=>res.status(204))
+    .catch(err=>console.log(err))
+
+    res.status(204)
 }

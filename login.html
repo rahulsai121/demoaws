@@ -18,7 +18,7 @@
 
     </form>
 
-    <a href="">New User-Signup Now</a>
+    <a href="signup.html">New User-Signup Now</a>
 
     <div id="maindiv"></div>
 
@@ -37,7 +37,7 @@
             email:email,
             password:password
             })
-            .then(res=>Showonscreen(res.data.message))
+            .then(res=>window.location.href='./Daily Expenses.html')
             .catch(error => {
                 if (error.response) {
                     Showonscreen(error.response.data.message);

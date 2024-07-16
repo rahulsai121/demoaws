@@ -20,6 +20,13 @@ app.post('/user/login',(req,res,next)=>{
     controller.loginpost(req,res)
 })
 
+app.post('/user/expense',(req,res,next)=>{
+    controller.expensepost(req,res)
+})
+app.delete('/user/expense/:id',(req,res)=>{
+    controller.expensedelete(req,res)
+})
+
 sequelize.sync()
     .then(() => {
         console.log('Database synced');
