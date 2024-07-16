@@ -6,6 +6,7 @@
     <title>Daily Expenses</title>
 </head>
 <body>
+    
     <form onsubmit="Submitexpenses(event)">
         <label for="amount">Amount:</label>
         <input type="number" name="amount" id="amount">
@@ -21,10 +22,23 @@
         </select>
         <button type="submit">Submit</button>
     </form>
-    <div id="maindiv"></div>
+    
+    <ul id="ul"></ul>
     
     <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            axios.get('http://localhost:3000/user/expense')
+            .then(res=>{
+                for(i=0;i<res.data.length;i++){
+                    showOnScreen(res.data[i])
+                }
+               //console.log(res.data.length)
+            })
+            .catch(err=>{
+                console.log(err)
+            })
+        });
         function Submitexpenses(event){
             event.preventDefault();
 
@@ -44,27 +58,26 @@
             .catch(err=>console.log(err))
         }
         function showOnScreen(x){
-            const maindiv=document.getElementById('maindiv')
+            const ul=document.getElementById('ul')
 
-            const div=document.createElement('div')
-            div.id=`div${x.id}`
+            const li=document.createElement('li')
+            li.id=`li${x.id}`
 
-            const p=document.createElement('p')
 
-            p.textContent=`${x.amount}-${x.category}-${x.des}`
+            const litext=document.createTextNode(`${x.amount}-${x.category}-${x.des}`)
 
             const button=document.createElement('button')
 
             button.textContent='Delete'
             button.onclick=()=>{
-                maindiv.removeChild(div)
+                ul.removeChild(li)
                 deleteExpense(x.id)
 
             }
 
-            div.appendChild(p)
-            div.appendChild(button)
-            maindiv.appendChild(div)
+            li.appendChild(litext)
+            li.appendChild(button)
+            ul.appendChild(li)
         }
         function deleteExpense(x) {
             axios.delete(`http://localhost:3000/user/expense/${x}`)

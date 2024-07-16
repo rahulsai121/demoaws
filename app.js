@@ -26,6 +26,9 @@ app.post('/user/expense',(req,res,next)=>{
 app.delete('/user/expense/:id',(req,res)=>{
     controller.expensedelete(req,res)
 })
+app.get('/user/expense',(req,res)=>{
+    controller.expenseget(req,res)
+})
 
 sequelize.sync()
     .then(() => {

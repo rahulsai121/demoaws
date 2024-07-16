@@ -57,3 +57,12 @@ exports.expensedelete=async(req,res)=>{
 
     res.status(204)
 }
+exports.expenseget=async(req,res)=>{
+    try {
+        const expensedata = await expense.findAll(); // Assuming 'expense' is your Sequelize model
+        res.status(200).json(expensedata); // Corrected syntax: use parentheses for json method
+    } catch (error) {
+        console.error('Error retrieving expense data:', error);
+        res.status(400).json({ error: 'Internal Error' });
+    }
+}
