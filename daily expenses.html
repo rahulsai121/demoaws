@@ -22,13 +22,20 @@
         </select>
         <button type="submit">Submit</button>
     </form>
+    <button id="rzp-button" onclick="buyPremium()">Buy Premium</button>
     
     <ul id="ul"></ul>
+
+
+
     
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            axios.get('http://localhost:3000/user/expense')
+            const token=localStorage.getItem('token')
+            
+            axios.get('http://localhost:3000/user/expense',{headers:{'authorization':token}})
             .then(res=>{
                 for(i=0;i<res.data.length;i++){
                     showOnScreen(res.data[i])
@@ -45,11 +52,13 @@
             const amount=document.getElementById('amount').value
             const des=document.getElementById('des').value
             const category=document.getElementById('category').value
+            const userid=localStorage.getItem('token')
 
             axios.post('http://localhost:3000/user/expense', {
                 amount:amount,
                 des:des,
-                category:category
+                category:category,
+                userid:userid
             })
             .then(res=>{
                 //console.log(res.data.newexpence)
@@ -86,6 +95,48 @@
             })
             .catch(err => console.log(err));
         }
+
+        //////////////////////////razpay
+
+
+        async function buyPremium() {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await axios.get('http://localhost:3000/purchase/premium', {
+                headers: { 'authorization': token }
+            });
+
+            console.log(response);
+
+            var options = {
+                "key": response.data.key_id,
+                "order_id": response.data.order.id,
+                // Handler for successful payment
+                "handler": async function (response) {
+                    try {
+                        const result = await axios.post('http://localhost:3000/purchase/updateTransactionStatus', {
+                            order_id: options.order_id,
+                            payment_id: response.razorpay_payment_id,
+                        },
+                        { headers: { 'authorization': token } });
+
+                        alert('You are a Premium User now');
+                } 
+                catch (error) {
+                    console.log(error);
+                    alert('Transaction failed. Please try again.');
+                }
+            },
+        };
+        
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+    } 
+    catch (error) {
+        console.log(error);
+        alert('Something went wrong. Please try again.');
+    }
+}
 
     </script>
 </body>

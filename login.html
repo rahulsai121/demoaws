@@ -32,12 +32,16 @@
             const password=document.getElementById('password').value
 
 
-
             axios.post('http://localhost:3000/user/login', {
             email:email,
             password:password
             })
-            .then(res=>window.location.href='./Daily Expenses.html')
+            .then(res=>{
+                const token=res.data.token
+                localStorage.setItem('token', token);
+
+                window.location.href='./daily expenses.html'
+            })
             .catch(error => {
                 if (error.response) {
                     Showonscreen(error.response.data.message);

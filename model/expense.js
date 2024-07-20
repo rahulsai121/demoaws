@@ -19,6 +19,9 @@ const expense=sequelize.define('expence',{
     category:{
         type:Sequelize.STRING,
         allowNull:false,
+      },
+      userid:{
+        type:Sequelize.INTEGER
       }
   })
   
