@@ -36,10 +36,10 @@ exports.loginpost=async(req,res)=>{
         const match=await bcrypt.compare(req.body.password,userdata[0].password)
         
         if(match){
-            const token=jwt.sign({id:userdata[0].id},'secretkey')
+            const token=jwt.sign({id:userdata[0].id,ispremium:userdata[0].ispremiumuser},'secretkey')
 
            // const decode=jwt.verify(token,'secretkey')
-           // console.log('decode---------',userdata[0].id)
+           //console.log('decode---------',userdata[0].ispremiumuser)
 
             res.status(200).json({token:token,success:true})
         }
@@ -132,11 +132,17 @@ exports.updateTransaction=async(req,res)=>{
             user.findOne({where:{id:order.userId}})
             .then(user=>{
                 user.update({ispremiumuser:true})
-                .then(()=>res.status(202).json({success:true,message:'transaction completed'}))
+                .then(()=>{
+                    const decode=jwt.decode(req.headers.authorization)
+                    decode.ispremium=true;
+                    const newToken=jwt.sign(decode,'secretkey')
+                    res.status(202).json({newToken,success:true,message:'transaction completed'})})
                 .catch(err=>console.log(err))
             })
             .catch(err=>console.log(err))
         })
+        
+        
     }
     catch(err){
         console.log(err)
