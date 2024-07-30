@@ -5,6 +5,7 @@ const sequelize = require('./utility/database');
 
 const User=require('./model/user')
 const Order=require('./model/orders')
+const Expense=require('./model/expense')
 
 
 const userRoutes = require('./routes/user');
@@ -27,6 +28,10 @@ app.use('/purchase', purchaseRoutes);
 
 User.hasMany(Order)
 Order.belongsTo(User)
+
+User.hasMany(Expense)
+Expense.belongsTo(User)
+
 
 sequelize.sync()
     .then(() => {

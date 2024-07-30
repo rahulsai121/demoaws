@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const Orders = require('../model/orders');
 const User = require('../model/user');
 const Expense=require('../model/expense');
+const sequelize=require('../utility/database');
+const order = require('../model/orders');
 
 require('dotenv').config();
 
@@ -64,30 +66,16 @@ exports.updateTransaction = async (req, res) => {
 
 exports.getUserLeaderBoard=async(req,res)=>{
     try{
-        const users=await User.findAll()
-        const expenses= await Expense.findAll()
-        const userTotalExpenses={}
-
-        expenses.forEach((expense)=>{
-            if(userTotalExpenses[expense.userid]){
-                userTotalExpenses[expense.userid]+=expense.amount            
-            }
-            else{
-                userTotalExpenses[expense.userid]=expense.amount
-            }
+        const leaderBoardDetails=await User.findAll({
+            attributes:['id','name',[sequelize.fn('sum',sequelize.col('expences.amount')),'total_amount']],
+            include:[{
+                model:Expense,
+                attributes:[]
+            }],
+            group:['id'],
+            order:[['total_amount','DESC']]
         })
-        
-        let leaderBoardDetails=[];
-        users.forEach((user)=>{
-            leaderBoardDetails.push({name:user.name,total_amount:userTotalExpenses[user.id],id:user.id})
-        })
-
-        leaderBoardDetails.sort((a, b) => {
-            const totalAmountA = a.total_amount || 0;
-            const totalAmountB = b.total_amount || 0;
-            return totalAmountB - totalAmountA;
-        });
-        console.log(leaderBoardDetails)
+        //console.log(leaderBoardDetails)
         res.status(201).json({leaderBoardDetails})
 
     }
