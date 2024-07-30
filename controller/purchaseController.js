@@ -67,14 +67,10 @@ exports.updateTransaction = async (req, res) => {
 exports.getUserLeaderBoard=async(req,res)=>{
     try{
         const leaderBoardDetails=await User.findAll({
-            attributes:['id','name',[sequelize.fn('sum',sequelize.col('expences.amount')),'total_amount']],
-            include:[{
-                model:Expense,
-                attributes:[]
-            }],
-            group:['id'],
-            order:[['total_amount','DESC']]
+            
+            order:[['totalamount','DESC']]
         })
+        
         //console.log(leaderBoardDetails)
         res.status(201).json({leaderBoardDetails})
 

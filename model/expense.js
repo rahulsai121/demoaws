@@ -20,9 +20,7 @@ const expense=sequelize.define('expence',{
         type:Sequelize.STRING,
         allowNull:false,
       },
-      userid:{
-        type:Sequelize.INTEGER
-      }
+      
   })
   
   module.exports=expense;
