@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 const Expense = require('../model/expense');
-const { where } = require('sequelize');
+const sequelize = require('../utility/database');
 
 require('dotenv').config();
 
@@ -35,18 +35,19 @@ exports.loginpost = async (req, res) => {
 };
 
 exports.expensepost = async (req, res) => {
+    const t=await sequelize.transaction()
     try {
         const userid = jwt.verify(req.body.userid, 'secretkey');
 
-        // Create new expense
+    
         const newExpense = await Expense.create({
             amount: req.body.amount,
             des: req.body.des,
             category: req.body.category,
             userId: userid.id
-        });
+        },{ transaction: t });
 
-        // Find the user and update total amount
+        
         const user = await User.findOne({
             where: { id: userid.id }
         });
@@ -55,25 +56,45 @@ exports.expensepost = async (req, res) => {
 
         totalAmount+=Number(req.body.amount)
 
-        await User.update(
+        const userupdate=await User.update(
             { totalamount: totalAmount },
-            { where: { id: userid.id } }
-        );
+            { where: { id: userid.id }, transaction: t }
+        )
 
+        await t.commit();
         res.status(201).json({ newExpense });
 
     } catch (error) {
+        await t.rollback();
         console.error('Error in expensepost:', error);
         res.status(500).json({ error: error.message });
     }
 };
 
 exports.expensedelete = async (req, res) => {
-    const result = Expense.destroy({ where: { id: req.params.id } })
-        .then(() => res.status(204))
-        .catch(err => console.log(err));
+    try {
+        const result = await Expense.destroy({ where: { id: req.params.id } });
 
-    res.status(204);
+        const userid = jwt.verify(req.query.z, 'secretkey');
+
+        const user = await User.findOne({
+            where: { id: userid.id }
+        });
+
+
+        let totalAmount = user.totalamount || 0;
+        totalAmount -= Number(req.query.y);
+
+        await User.update(
+            { totalamount: totalAmount },
+            { where: { id: userid.id } }
+        );
+
+        res.status(204); // Send no content on successful deletion and update
+    } catch (error) {
+        console.error('Error in expensedelete:', error);
+        res.status(500).json({ error: error.message });
+    }
 };
 
 exports.expenseget = async (req, res) => {

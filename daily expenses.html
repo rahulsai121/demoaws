@@ -94,7 +94,8 @@
             button.textContent = 'Delete';
             button.onclick = () => {
                 ul.removeChild(li);
-                deleteExpense(x.id,x.amount);
+                const userid = localStorage.getItem('token');
+                deleteExpense(x.id,x.amount,userid);
             };
     
             li.appendChild(litext);
@@ -102,8 +103,11 @@
             ul.appendChild(li);
         }
     
-        function deleteExpense(x,y) {
-            axios.delete(`http://localhost:3000/user/expense/${x}`)
+        function deleteExpense(x,y,z) {
+            //console.log(y)
+            axios.delete(`http://localhost:3000/user/expense/${x}`,{
+                params:{y,z}
+            })
                 .then(res => {
                     console.log('Expense deleted');
                 })
