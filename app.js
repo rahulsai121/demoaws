@@ -10,6 +10,7 @@ const Expense=require('./model/expense')
 
 const userRoutes = require('./routes/user');
 const purchaseRoutes = require('./routes/purchase');
+const passwordRoutes = require('./routes/password');
 
 
 const app=express();
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/user', userRoutes);
 app.use('/purchase', purchaseRoutes);
+app.use('/password', passwordRoutes);
 
 
 

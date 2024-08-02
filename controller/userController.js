@@ -71,6 +71,7 @@ exports.expensepost = async (req, res) => {
     }
 };
 
+
 exports.expensedelete = async (req, res) => {
     try {
         const result = await Expense.destroy({ where: { id: req.params.id } });
