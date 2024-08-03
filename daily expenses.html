@@ -23,6 +23,7 @@
         <button type="submit">Submit</button>
     </form>
     <button id="rzp-button" onclick="buyPremium()">Buy Premium</button>
+    <button onclick="download()" id="downloadexpense" style="display: none;">Download File</button>
     
     
     <div id="text"></div>
@@ -48,6 +49,7 @@
                 document.getElementById('rzp-button').style.display = 'none'
                 document.getElementById('text').innerHTML = 'You are a Premium User now';
                 document.getElementById('leader').style.display = 'block'
+                document.getElementById('downloadexpense').style.display = 'block'
             }
     
             axios.get('http://localhost:3000/user/expense', { headers: { 'authorization': token } })
@@ -140,6 +142,7 @@
                             document.getElementById('rzp-button').style.display = 'none'
                             document.getElementById('text').innerHTML = 'You are a Premium User now';
                             document.getElementById('leader').style.display = 'block'
+                            document.getElementById('downloadexpense').style.display = 'block'
                         } 
                         catch (error) {
                             console.log(error);
@@ -200,6 +203,28 @@
             ul.appendChild(li);
 
         }
+
+        function download(){
+            const token=localStorage.getItem('token');
+            axios.get('http://localhost:3000/user/download', { headers: {"Authorization" : token} })
+            .then((response) => {
+                if(response.status === 201){
+
+                    var a = document.createElement("a");
+                    a.href = response.data.fileUrl;
+                    a.download = 'myexpense.csv';
+                    a.click();
+
+                } else {
+                    throw new Error(response.data.message)
+                }
+                
+            })
+            .catch((err) => {
+                console.log(`error in download ${err}`)
+            });
+        }
+
     </script>
     
     
