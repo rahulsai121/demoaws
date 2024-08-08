@@ -76,7 +76,7 @@ exports.expensedelete = async (req, res) => {
     try {
         const result = await Expense.destroy({ where: { id: req.params.id } });
 
-        const userid = jwt.verify(req.query.z, 'secretkey');
+        const userid = jwt.verify(req.query.userid, 'secretkey');
 
         const user = await User.findOne({
             where: { id: userid.id }
@@ -84,7 +84,7 @@ exports.expensedelete = async (req, res) => {
 
 
         let totalAmount = user.totalamount || 0;
-        totalAmount -= Number(req.query.y);
+        totalAmount -= Number(req.query.amount);
 
         await User.update(
             { totalamount: totalAmount },
@@ -101,8 +101,27 @@ exports.expensedelete = async (req, res) => {
 exports.expenseget = async (req, res) => {
     try {
         const decodetoken = jwt.verify(req.headers.authorization, 'secretkey');
-        const expensedata = await Expense.findAll({ where: { userid: decodetoken.id } });
-        res.status(200).json(expensedata);
+        //const expensedata = await Expense.findAll({ where: { userid: decodetoken.id } });
+
+        const page=req.query.page
+        const totalNumberOfExpenses= await Expense.count()
+        const expencePerPage=10;
+        
+        const expensedata=await Expense.findAll({
+            where: { userid: decodetoken.id },
+            offset:(page-1)*expencePerPage,
+            limit:expencePerPage
+        })
+
+        res.status(200).json({
+            expenses:expensedata,
+            currentPage:page,
+            hasNextPage:expencePerPage*page<totalNumberOfExpenses,
+            nextPage:Number(page)+1,
+            hasPreviousPage:page>1,
+            previousPage:page-1,
+            lastPage:Math.ceil(totalNumberOfExpenses/expencePerPage)
+            });
     } catch (error) {
         console.error('Error retrieving expense data:', error);
         res.status(400).json({ error: 'Internal Error' });
