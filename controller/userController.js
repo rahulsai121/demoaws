@@ -100,27 +100,29 @@ exports.expensedelete = async (req, res) => {
 
 exports.expenseget = async (req, res) => {
     try {
+        console.log('query--------',req.query.limit)
         const decodetoken = jwt.verify(req.headers.authorization, 'secretkey');
         //const expensedata = await Expense.findAll({ where: { userid: decodetoken.id } });
 
         const page=req.query.page
         const totalNumberOfExpenses= await Expense.count()
-        const expencePerPage=10;
         
+        const limit=parseInt(req.query.limit)
+        console.log('limit-------',limit,typeof(limit))
         const expensedata=await Expense.findAll({
             where: { userid: decodetoken.id },
-            offset:(page-1)*expencePerPage,
-            limit:expencePerPage
+            offset:(page-1)*(limit),
+            limit:limit
         })
 
         res.status(200).json({
             expenses:expensedata,
             currentPage:page,
-            hasNextPage:expencePerPage*page<totalNumberOfExpenses,
+            hasNextPage:limit*page<totalNumberOfExpenses,
             nextPage:Number(page)+1,
             hasPreviousPage:page>1,
             previousPage:page-1,
-            lastPage:Math.ceil(totalNumberOfExpenses/expencePerPage)
+            lastPage:Math.ceil(totalNumberOfExpenses/limit)
             });
     } catch (error) {
         console.error('Error retrieving expense data:', error);

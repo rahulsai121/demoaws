@@ -34,6 +34,8 @@
 
     <h2>Expenses</h2>
 
+    
+
     <table id="expensesTable" border="1">
         <thead>
             <tr>
@@ -46,6 +48,12 @@
         <tbody id="expensesTableBody">
         </tbody>
     </table>
+    <label for="limit">Expense per page:</label>
+    <select name="limit" id="limit"onchange="updateTable()">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+    </select>
     <div id="pagination" style="display: block;"></div>
 
     <h2 id="leadhead" style="display: none;">Leader Board</h2>
@@ -64,11 +72,10 @@
         document.getElementById('leader').style.display = 'block';
         document.getElementById('downloadexpense').style.display = 'block';
     }
+    const limit = parseInt(document.getElementById('limit').value);
 
-    axios.get(`http://localhost:3000/user/expense?page=${1}`, { headers: { 'authorization': token } })
+    axios.get(`http://localhost:3000/user/expense?page=${1}&limit=${limit}`, { headers: { 'authorization': token } })
         .then(res => {
-            console.log(res.data)
-            console.log(res.data.expenses.length)
             shoPagination(res.data)
             for (i = 0; i < res.data.expenses.length; i++) {
                 showOnScreen(res.data.expenses[i]);
@@ -131,10 +138,25 @@ function shoPagination(data){
 }
 function getProducts(page){
     const token = localStorage.getItem('token');
-    axios.get(`http://localhost:3000/user/expense?page=${page}`, { headers: { 'authorization': token } })
+    const limit = parseInt(document.getElementById('limit').value);
+    axios.get(`http://localhost:3000/user/expense?page=${page}&limit=${limit}`, { headers: { 'authorization': token } })
         .then(res => {
-            console.log(res.data)
-            console.log(res.data.expenses.length)
+            shoPagination(res.data)
+            for (i = 0; i < res.data.expenses.length; i++) {
+                showOnScreen(res.data.expenses[i]);
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        });
+}
+
+function updateTable(){
+    const token = localStorage.getItem('token');
+    const limit = parseInt(document.getElementById('limit').value);
+
+    axios.get(`http://localhost:3000/user/expense?page=${1}&limit=${limit}`, { headers: { 'authorization': token } })
+        .then(res => {
             shoPagination(res.data)
             for (i = 0; i < res.data.expenses.length; i++) {
                 showOnScreen(res.data.expenses[i]);
