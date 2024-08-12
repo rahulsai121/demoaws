@@ -2,7 +2,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 const Expense = require('../model/expense');
+const Downloadedexpencestable=require('../model/downloadedexpenses');
 const sequelize = require('../utility/database');
+const AWS = require('aws-sdk');
+
+const uploadToS3 = require('../services/awsS3Service');
+
 
 require('dotenv').config();
 
@@ -35,28 +40,28 @@ exports.loginpost = async (req, res) => {
 };
 
 exports.expensepost = async (req, res) => {
-    const t=await sequelize.transaction()
+    const t = await sequelize.transaction()
     try {
         const userid = jwt.verify(req.body.userid, 'secretkey');
 
-    
+
         const newExpense = await Expense.create({
             amount: req.body.amount,
             des: req.body.des,
             category: req.body.category,
             userId: userid.id
-        },{ transaction: t });
+        }, { transaction: t });
 
-        
+
         const user = await User.findOne({
             where: { id: userid.id }
         });
 
-        let totalAmount = user.totalamount ||0
+        let totalAmount = user.totalamount || 0
 
-        totalAmount+=Number(req.body.amount)
+        totalAmount += Number(req.body.amount)
 
-        const userupdate=await User.update(
+        const userupdate = await User.update(
             { totalamount: totalAmount },
             { where: { id: userid.id }, transaction: t }
         )
@@ -100,32 +105,86 @@ exports.expensedelete = async (req, res) => {
 
 exports.expenseget = async (req, res) => {
     try {
-        console.log('query--------',req.query.limit)
         const decodetoken = jwt.verify(req.headers.authorization, 'secretkey');
         //const expensedata = await Expense.findAll({ where: { userid: decodetoken.id } });
 
-        const page=req.query.page
-        const totalNumberOfExpenses= await Expense.count()
-        
-        const limit=parseInt(req.query.limit)
-        console.log('limit-------',limit,typeof(limit))
-        const expensedata=await Expense.findAll({
+        const page = req.query.page
+        const totalNumberOfExpenses = await Expense.count()
+
+        const limit = parseInt(req.query.limit)
+        const expensedata = await Expense.findAll({
             where: { userid: decodetoken.id },
-            offset:(page-1)*(limit),
-            limit:limit
+            offset: (page - 1) * (limit),
+            limit: limit
         })
 
         res.status(200).json({
-            expenses:expensedata,
-            currentPage:page,
-            hasNextPage:limit*page<totalNumberOfExpenses,
-            nextPage:Number(page)+1,
-            hasPreviousPage:page>1,
-            previousPage:page-1,
-            lastPage:Math.ceil(totalNumberOfExpenses/limit)
-            });
+            expenses: expensedata,
+            currentPage: page,
+            hasNextPage: limit * page < totalNumberOfExpenses,
+            nextPage: Number(page) + 1,
+            hasPreviousPage: page > 1,
+            previousPage: page - 1,
+            lastPage: Math.ceil(totalNumberOfExpenses / limit)
+        });
     } catch (error) {
         console.error('Error retrieving expense data:', error);
         res.status(400).json({ error: 'Internal Error' });
     }
 };
+
+exports.downloadexpense = async (req, res) => {
+    try {
+        const decodetoken = jwt.verify(req.headers.authorization, 'secretkey');
+
+        const expenses = await Expense.findAll({ where: { userId: decodetoken.id } })
+
+        const stringfiedExpenses = JSON.stringify(expenses)
+        const filename = `Expense${decodetoken.id}/${new Date()}.txt`
+
+        const fileURl = await uploadToS3(stringfiedExpenses, filename,)
+        
+        res.status(201).json(fileURl)
+    }
+    catch (error) {
+        console.error('Error in downloadexpense:', error);
+        res.status(400).json({ error: 'Internal Error' });
+    }
+
+}
+
+exports.downloadexpensetable=async(req,res)=>{
+    try{
+        const decodetoken = jwt.verify(req.body.token, 'secretkey');
+
+        const newdownloadedexpensetable=await Downloadedexpencestable.create({
+            fileUrl:req.body.fileUrl,
+            userId:decodetoken.id
+        })
+        res.status(201).json(newdownloadedexpensetable)
+    }
+    catch(error){
+        
+        console.error('Error in downloadexpensetable:', error);
+        res.status(400).json({ error: 'Internal Error' });
+    }
+}
+exports.getdownloadexpensetable=async(req,res)=>{
+    try{
+        const decodetoken = jwt.verify(req.headers.authorization, 'secretkey');
+
+        const table=await Downloadedexpencestable.findAll({
+            where:{
+                userId:decodetoken.id
+
+            }
+        })
+        res.status(200).json({table})
+
+    }
+    catch(error){
+        
+        console.error('Error in getdownloadexpensetable:', error);
+        res.status(400).json({ error: 'Internal Error' });
+    }
+}

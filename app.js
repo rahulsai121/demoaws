@@ -7,6 +7,8 @@ const User=require('./model/user')
 const Order=require('./model/orders')
 const Expense=require('./model/expense')
 const ForgotPasswordRequests=require('./model/ForgotPasswordRequests')
+const downloadedexpenses=require('./model/downloadedexpenses')
+
 
 const userRoutes = require('./routes/user');
 const purchaseRoutes = require('./routes/purchase');
@@ -36,6 +38,10 @@ Expense.belongsTo(User)
 
 User.hasMany(ForgotPasswordRequests)
 ForgotPasswordRequests.belongsTo(User)
+
+
+User.hasMany(downloadedexpenses)
+downloadedexpenses.belongsTo(User)
 
 sequelize.sync()
     .then(() => {
