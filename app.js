@@ -1,8 +1,12 @@
 const express=require('express')
 const cors=require('cors')
+const helmet=require('helmet')
+const fs = require('fs')
+const morgan = require('morgan')
+const path = require('path')
+
+
 const sequelize = require('./utility/database');
-
-
 const User=require('./model/user')
 const Order=require('./model/orders')
 const Expense=require('./model/expense')
@@ -21,12 +25,17 @@ const app=express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(helmet())
 
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+ 
 
 
 app.use('/user', userRoutes);
 app.use('/purchase', purchaseRoutes);
 app.use('/password', passwordRoutes);
+app.use(morgan('combined', { stream: accessLogStream }))
+
 
 
 

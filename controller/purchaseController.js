@@ -16,7 +16,7 @@ exports.premiumget = async (req, res) => {
             key_secret: process.env.key_secret
         });
         const amount = 500;
-        const user = jwt.verify(req.headers.authorization, 'secretkey');
+        const user = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
 
         rzp.orders.create({ amount, currency: 'INR' }, (err, order) => {
             if (err) {
@@ -50,7 +50,7 @@ exports.updateTransaction = async (req, res) => {
                             .then(() => {
                                 const decode = jwt.decode(req.headers.authorization);
                                 decode.ispremium = true;
-                                const newToken = jwt.sign(decode, 'secretkey');
+                                const newToken = jwt.sign(decode, process.env.JWT_SECRET_KEY);
                                 res.status(202).json({ newToken, success: true, message: 'transaction completed' });
                             })
                             .catch(err => console.log(err));

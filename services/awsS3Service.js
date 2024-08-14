@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+require('dotenv').config();
 
 async function uploadToS3(data, filename) {
     const bucketname = 'expensetracker121'

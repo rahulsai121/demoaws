@@ -26,10 +26,10 @@ exports.loginpost = async (req, res) => {
     const userdata = await User.findAll({ where: { email: req.body.email } });
 
     if (userdata.length > 0) {
-        const match = await bcrypt.compare(req.body.password, userdata[0].password);
+        const match = await bcrypt.compare(req.body.password, userdata[0].password);'secretkey'
 
         if (match) {
-            const token = jwt.sign({ id: userdata[0].id, ispremium: userdata[0].ispremiumuser }, 'secretkey');
+            const token = jwt.sign({ id: userdata[0].id, ispremium: userdata[0].ispremiumuser },process.env.JWT_SECRET_KEY );
             res.status(200).json({ token: token, success: true });
         } else {
             res.status(401).json({ message: 'User not authorized', success: false });
