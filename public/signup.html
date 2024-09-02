@@ -38,7 +38,9 @@
             email:email,
             password:password
             })
-            .then(res=>window.location.href='./login.html')
+            .then(res=>{
+                window.location.href='./login.html'
+            })
             .catch(err=>console.log(err))
         }
     </script>

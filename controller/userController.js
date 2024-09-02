@@ -12,6 +12,7 @@ const uploadToS3 = require('../services/awsS3Service');
 require('dotenv').config();
 
 exports.userpost = async (req, res) => {
+    
     const hash = await bcrypt.hash(req.body.password, 10);
     const newuser = await User.create({
         name: req.body.name,
@@ -109,7 +110,7 @@ exports.expenseget = async (req, res) => {
         //const expensedata = await Expense.findAll({ where: { userid: decodetoken.id } });
 
         const page = req.query.page
-        const totalNumberOfExpenses = await Expense.count()
+        const totalNumberOfExpenses = await Expense.count({where: { userid: decodetoken.id }})
 
         const limit = parseInt(req.query.limit)
         const expensedata = await Expense.findAll({
@@ -117,7 +118,6 @@ exports.expenseget = async (req, res) => {
             offset: (page - 1) * (limit),
             limit: limit
         })
-
         res.status(200).json({
             expenses: expensedata,
             currentPage: page,
