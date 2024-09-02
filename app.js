@@ -20,6 +20,7 @@ const passwordRoutes = require('./routes/password');
 
 
 const app=express();
+require('dotenv').config();
 
 
 app.use(cors());
@@ -28,14 +29,35 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet())
 
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+app.use(morgan('combined', { stream: accessLogStream }))
  
+
+app.use((req,res,next)=>{
+    console.log(typeof(req.path))
+    if(!req.path.startsWith('/user') && 
+    !req.path.startsWith('/purchase') &&
+    !req.path.startsWith('/password'))
+    {
+    console.log('req.url------',req.url)
+    res.sendFile(path.join(__dirname,`public/${req.url}.html`))
+    }
+    else{
+        next();
+    }
+})
 
 
 app.use('/user', userRoutes);
 app.use('/purchase', purchaseRoutes);
 app.use('/password', passwordRoutes);
-app.use(morgan('combined', { stream: accessLogStream }))
 
+
+
+/*
+app.use((req, res, next) => {
+    res.status(404).json({ error: 'Invalid URL. The requested resource was not found.' });
+});
+*/
 
 
 
@@ -52,10 +74,13 @@ ForgotPasswordRequests.belongsTo(User)
 User.hasMany(downloadedexpenses)
 downloadedexpenses.belongsTo(User)
 
+
+
+const PORT = process.env.PORT || 3000;
 sequelize.sync()
     .then(() => {
         console.log('Database synced');
-        app.listen(3000, () => {
+        app.listen(PORT, () => {
             console.log('Server is running');
         });
 })
