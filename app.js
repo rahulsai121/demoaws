@@ -33,12 +33,10 @@ app.use(morgan('combined', { stream: accessLogStream }))
  
 
 app.use((req,res,next)=>{
-    console.log(typeof(req.path))
     if(!req.path.startsWith('/user') && 
     !req.path.startsWith('/purchase') &&
     !req.path.startsWith('/password'))
     {
-    console.log('req.url------',req.url)
     res.sendFile(path.join(__dirname,`public/${req.url}.html`))
     }
     else{
