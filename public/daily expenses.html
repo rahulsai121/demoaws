@@ -78,7 +78,7 @@
             }
             const limit = parseInt(document.getElementById('limit').value);
 
-            axios.get(`http://localhost:3000/user/expense?page=${1}&limit=${limit}`, { headers: { 'authorization': token } })
+            axios.get(`http://13.201.4.25:3000/user/expense?page=${1}&limit=${limit}`, { headers: { 'authorization': token } })
                 .then(res => {
                     shoPagination(res.data)
                     for (let i = 0; i < res.data.expenses.length; i++) {
@@ -89,7 +89,7 @@
                     console.log(err);
                 });
 
-            axios.get(`http://localhost:3000/user/downlodedexpense`,{ headers: { 'authorization': token }})
+            axios.get(`http://13.201.4.25:3000/user/downlodedexpense`,{ headers: { 'authorization': token }})
             .then(res=>{
                 for(let i=0;i<res.data.table.length;i++){
                     showOnScreenDownloadedExpenses(res.data.table[i])
@@ -106,7 +106,7 @@
             const category = document.getElementById('category').value;
             const userid = localStorage.getItem('token');
 
-            axios.post('http://localhost:3000/user/expense', {
+            axios.post('http://13.201.4.25:3000/user/expense', {
                 amount: amount,
                 des: des,
                 category: category,
@@ -151,7 +151,7 @@
         function getProducts(page) {
             const token = localStorage.getItem('token');
             const limit = parseInt(document.getElementById('limit').value);
-            axios.get(`http://localhost:3000/user/expense?page=${page}&limit=${limit}`, { headers: { 'authorization': token } })
+            axios.get(`http://13.201.4.25:3000/user/expense?page=${page}&limit=${limit}`, { headers: { 'authorization': token } })
                 .then(res => {
                     shoPagination(res.data)
                     for (i = 0; i < res.data.expenses.length; i++) {
@@ -167,7 +167,7 @@
             const token = localStorage.getItem('token');
             const limit = parseInt(document.getElementById('limit').value);
 
-            axios.get(`http://localhost:3000/user/expense?page=${1}&limit=${limit}`, { headers: { 'authorization': token } })
+            axios.get(`http://13.201.4.25:3000/user/expense?page=${1}&limit=${limit}`, { headers: { 'authorization': token } })
                 .then(res => {
                     shoPagination(res.data)
                     for (i = 0; i < res.data.expenses.length; i++) {
@@ -219,7 +219,7 @@
         }
 
         function deleteExpense(id, amount, userid) {
-            axios.delete(`http://localhost:3000/user/expense/${id}`, {
+            axios.delete(`http://13.201.4.25:3000/user/expense/${id}`, {
                 params: { amount, userid }
             })
                 .then(res => {
@@ -231,7 +231,7 @@
         async function buyPremium() {
             const token = localStorage.getItem('token');
             try {
-                const response = await axios.get('http://localhost:3000/purchase/premium', {
+                const response = await axios.get('http://13.201.4.25:3000/purchase/premium', {
                     headers: { 'authorization': token }
                 });
 
@@ -240,7 +240,7 @@
                     "order_id": response.data.order.id,
                     "handler": async function (response) {
                         try {
-                            const result = await axios.post('http://localhost:3000/purchase/updateTransactionStatus', {
+                            const result = await axios.post('http://13.201.4.25:3000/purchase/updateTransactionStatus', {
                                 order_id: options.order_id,
                                 payment_id: response.razorpay_payment_id,
                             },
@@ -284,7 +284,7 @@
         }
 
         function displayLeaderBoard() {
-            axios.get('http://localhost:3000/purchase/leaderboard')
+            axios.get('http://13.201.4.25:3000/purchase/leaderboard')
                 .then(res => {
                     document.getElementById('leadhead').style.display = 'block';
                     res.data.leaderBoardDetails.forEach(element => {
@@ -315,7 +315,7 @@
 
         function download() {
             const token = localStorage.getItem('token');
-            axios.get('http://localhost:3000/user/download', { headers: { "Authorization": token } })
+            axios.get('http://13.201.4.25:3000/user/download', { headers: { "Authorization": token } })
                 .then((response) => {
                     console.log(response.data)
                     if (response.status === 201) {
@@ -323,7 +323,7 @@
                         a.href = response.data;
                         a.download = 'myexpense.csv';
                         a.click();
-                        axios.post('http://localhost:3000/user/downlodedexpense', {
+                        axios.post('http://13.201.4.25:3000/user/downlodedexpense', {
                             fileUrl: response.data,
                             date: new Date(),
                             token: token

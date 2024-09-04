@@ -41,7 +41,7 @@ exports.forgotPassword = async (req, res) => {
                 name: 'Rahul'
             },
             subject: 'Forgot Password',
-            htmlContent: `<a href="http://localhost:3000/password/resetpassword/${id}">Reset password</a>`,
+            htmlContent: `<a href="http://13.201.4.25:3000/password/resetpassword/${id}">Reset password</a>`,
         };
         //console.log(emailData.htmlContent)
 
