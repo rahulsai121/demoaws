@@ -1,13 +1,16 @@
 
 const uuid = require('uuid');
 const bcrypt = require('bcrypt');
-const SibApiV3Sdk = require('sib-api-v3-sdk');
+const sgMail = require('@sendgrid/mail');
+
 
 const User = require('../model/user'); 
 const ForgotPassword=require('../model/ForgotPasswordRequests');
-const { where } = require('sequelize');
+
 
 require('dotenv').config();
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.forgotPassword = async (req, res) => {
     try {
@@ -16,7 +19,6 @@ exports.forgotPassword = async (req, res) => {
         const id = uuid.v4();
 
         if(user){
-
             const forgotpassword=await ForgotPassword.create({ id:id , isActive: true,userId: user.id })
                 .catch(err => {
                     throw new Error(err)
@@ -25,28 +27,18 @@ exports.forgotPassword = async (req, res) => {
 
 
         ///////sending mail
-        const defaultClient = SibApiV3Sdk.ApiClient.instance;
-        const apiKey = defaultClient.authentications['api-key'];
-        apiKey.apiKey = process.env.BREVO_API; 
-
-        const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-
         const emailData = {
-            to: [{
-                email: email,
-                name: 'DemoRahul'
-            }],
-            sender: {
+            to: email,
+            from: {
                 email: 'pasam.rahul1234@gmail.com',
                 name: 'Rahul'
             },
             subject: 'Forgot Password',
-            htmlContent: `<a href="http://13.201.4.25:3000/password/resetpassword/${id}">Reset password</a>`,
+            html: `<a href="http://13.202.38.201:3000/password/resetpassword/${id}">Reset password</a>`,
         };
-        //console.log(emailData.htmlContent)
 
         try {
-            const data = await apiInstance.sendTransacEmail(emailData);
+            const data = await sgMail.send(emailData);
             res.status(200).send('Email sent successfully');
         } catch (error) {
             console.error('Error sending email:', error);
@@ -61,7 +53,6 @@ exports.forgotPassword = async (req, res) => {
 
 exports.resetPassword= async(req,res)=>{
     const id =  req.params.id;
-    console.log(id)
     ForgotPassword.findOne({ where : { id }}).then(forgotpasswordrequest => {
         if(forgotpasswordrequest){
             forgotpasswordrequest.update({ active: false});
@@ -105,5 +96,6 @@ exports.updatePassword=async(req,res)=>{
     }
     catch(error){
         console.log(`error in updatePassword${error}`)
+        res.status(500).send('Internal Server Error');
     }
 }
