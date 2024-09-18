@@ -32,7 +32,7 @@ const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'),
 app.use(morgan('combined', { stream: accessLogStream }))
  
 
-///ex---1
+console.log('ex--jenkins')
 
 app.use((req,res,next)=>{
     if(!req.path.startsWith('/user') && 
